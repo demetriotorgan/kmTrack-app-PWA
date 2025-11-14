@@ -1,24 +1,35 @@
 .status-conexao {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 0.4rem;
-  font-size: 0.9rem;
-  padding: 0.3rem 0;
-  transition: var(--transition);
-  background-color: transparent;
-  color: var(--color-text);
-  border-bottom: 1px solid transparent;
+  gap: 6px;
+  font-size: 14px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  color: #fff;
+  position: fixed;
+  top: 8px;
+  right: 8px;
+  z-index: 1000;
+  transition: background 0.3s ease;
 }
 
-/* Estado online */
 .status-conexao.online {
-  color: #7CFC00; /* verde claro */
-  border-bottom: 1px solid rgba(124, 252, 0, 0.2);
+  background-color: #28a745;
 }
 
-/* Estado offline */
 .status-conexao.offline {
-  color: #ff7070; /* vermelho suave */
-  border-bottom: 1px solid rgba(255, 112, 112, 0.2);
+  background-color: #dc3545;
+}
+
+.status-conexao.sincronizando {
+  background-color: #ff9800;
+}
+
+.rotacionando {
+  animation: girar 1s linear infinite;
+}
+
+@keyframes girar {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }

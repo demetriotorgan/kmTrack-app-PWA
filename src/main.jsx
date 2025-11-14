@@ -10,6 +10,21 @@ import Trecho from './componentes/Trecho.jsx';
 import Estatisticas from './componentes/Estatisticas.jsx';
 import Abastecimentos from './componentes/Abastecimentos.jsx';
 import Pedagios from './componentes/Pedagios.jsx';
+import './services/syncManager.js';
+
+import { configurarOfflineInterceptor } from './services/offLineInterceptor.js';
+import { sincronizarPendentes } from './services/syncManager.js'
+
+// Inicializa o interceptor
+configurarOfflineInterceptor();
+
+// 🔁 Escuta quando o app volta a ficar online e sincroniza pendências
+window.addEventListener('online', async () => {
+  console.log('🌐 Conexão restabelecida, iniciando sincronização...')
+  await sincronizarPendentes()
+});
+// Opcional: tentar sincronizar assim que o app abrir
+sincronizarPendentes()
 
 const router = createBrowserRouter([
   {
@@ -25,6 +40,7 @@ const router = createBrowserRouter([
     ],
   },
 ]);
+
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
