@@ -2,34 +2,47 @@ import api from '../api/api'
 import { listarItens, removerItem } from './idbService'
 
 export async function sincronizarPendentes() {
+  const pendentes = await listarItens('pendentes');
+
+  console.log("📦 Pendentes encontrados:", pendentes);
+
+  if (pendentes.length === 0) {
+    console.log("✅ Nenhuma operação pendente.");
+    return;
+  }
+
+  console.log(`🔄 Iniciando sincronização de ${pendentes.length} operações...`);
+
+  // Notificar início
+  window.dispatchEvent(new CustomEvent("sync:start"));
+
   try {
-    const pendentes = await listarItens('pendentes')
-    if (pendentes.length === 0) {
-      console.log('✅ Nenhuma operação pendente para sincronizar.')
-      return
-    }
-
-    console.log(`🔄 Iniciando sincronização de ${pendentes.length} operações...`)
-
-    // 🔔 Dispara evento para notificar o StatusConexao
-    window.dispatchEvent(new CustomEvent('sync:start'))
-
     for (const item of pendentes) {
       try {
-        const { url, method, data, headers } = item
-        await api.request({ url, method, data, headers })
-        await removerItem('pendentes', item.uuid)
-        console.log(`☁️ Sincronizado com sucesso: ${url}`)
-      } catch (err) {
-        console.warn(`⚠️ Falha ao sincronizar ${item.url}:`, err.message)
+        await api({
+          url: item.url,
+          method: item.method,
+          data: item.data,
+        });
+
+        console.log("✔ Sincronizado com sucesso:", item.url);
+
+        // Remover pendência
+        await removerItem("pendentes", item.uuid);
+
+      } catch (error) {
+        if (error.response?.status === 409) {
+          console.warn("⚠ Registro já existe no servidor. Removendo pendência...");
+          await removerItem("pendentes", item.uuid);
+        } else {
+          console.error("❌ Falha ao sincronizar:", error);
+          // Mantém pendência para tentar depois
+          continue;
+        }
       }
     }
-
-    console.log('✅ Sincronização concluída.')
-  } catch (err) {
-    console.error('❌ Erro ao sincronizar pendentes:', err)
   } finally {
-    // 🔔 Notifica que terminou
-    window.dispatchEvent(new CustomEvent('sync:end'))
+    // Disparado apenas uma vez, após toda a sincronização
+    window.dispatchEvent(new CustomEvent("sync:end"));
   }
 }

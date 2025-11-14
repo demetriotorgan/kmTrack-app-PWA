@@ -9,7 +9,7 @@ export function configurarOfflineInterceptor() {
         uuid: uuidv4(),
         url: config.url,
         method: config.method,
-        data: config.data,
+        data: JSON.parse(JSON.stringify(config.data)),
         timestamp: Date.now(),
       }
       await salvarItem('pendentes', pendente)
