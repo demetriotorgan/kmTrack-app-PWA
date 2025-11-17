@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import api from '../api/api';
 
-export const useViagem = ({recarregar}) => {
+export const useViagem = ({ recarregar, adicionarLocal }) => {
   const viagemInicial = {
     nome: '',
     origem: '',
@@ -51,21 +51,21 @@ export const useViagem = ({recarregar}) => {
     if (!confirmar) {
       alert('🚫 Operação cancelada.');
       return;
-    }    
+    }
 
     try {
       setSalvando(true);
-      
-      if(viagem._id){
-       const response = await api.put(`/editar-viagem/${viagem._id}`, viagem);
+
+      if (viagem._id) {
+        const response = await api.put(`/editar-viagem/${viagem._id}`, viagem);
         alert('✏️ Viagem atualizada com sucesso!')
         console.log('Dados Atualziados', response.data);
-      }else{
-      const response = await api.post('/salvar-viagem', viagem);
-      alert('✅ Viagem cadastrada com sucesso!');
-      console.log('Dados enviados:', response.data);  
-      }    
-      
+      } else {
+        const response = await api.post('/salvar-viagem', viagem);
+        alert('✅ Viagem cadastrada com sucesso!');
+        console.log('Dados enviados:', response.data);
+      }
+
       //Atualiza lista de viagens com novo registro salvo
       await recarregar();
 
@@ -73,8 +73,30 @@ export const useViagem = ({recarregar}) => {
       setViagem(viagemInicial);
 
     } catch (error) {
-      console.error(error);
-      alert('❌ Erro ao cadastrar viagem.');
+        console.error("Erro ao salvar viagem: ", error);
+
+  const erroDeRede =
+    !navigator.onLine ||
+    error.code === "ERR_NETWORK" ||
+    !error.response; // sem resposta = API inacessível
+
+  if (erroDeRede) {
+    adicionarLocal({
+      ...viagem,
+      _id: `offline-${Date.now()}`,
+      offline: true
+    });
+
+    alert(
+      "📴 Você está offline.\n\n" +
+      "A viagem foi salva no dispositivo e será sincronizada quando a conexão voltar."
+    );
+
+    setViagem(viagemInicial);
+    return;
+  }
+
+  alert("❌ Erro ao cadastrar viagem.");
     } finally {
       setSalvando(false);
     }

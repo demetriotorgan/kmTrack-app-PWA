@@ -8,8 +8,8 @@ import { useCarregarViagem } from '../hooks/useCarregarViagem';
 import ModalSalvando from './ModalSalvando';
 
 const Viagem = () => { 
- const { viagens, carregando, erro, recarregar } = useCarregarViagem();  
- const { viagem, setViagem, handleChange, handleSubmit, salvando } = useViagem({recarregar});
+ const { viagens, carregando, erro, recarregar,adicionarLocal } = useCarregarViagem();  
+ const { viagem, setViagem, handleChange, handleSubmit, salvando } = useViagem({recarregar,adicionarLocal});
 
   return (
     <>
@@ -103,21 +103,23 @@ const Viagem = () => {
     </div>
     {/* 🔹 Listagem de viagens */}
       <div className='container'>
-        {carregando && <p>Carregando viagens...</p>}
-        {erro && <p style={{ color: 'red' }}>{erro}</p>}
-        {!carregando && !erro && (
-          viagens.length > 0
-            ? viagens.map((item, index) => (
-                <CardViagem 
-                  key={index} 
-                  viagemCadastrada={item} 
-                  setViagem={setViagem}
-                  recarregar={recarregar}                  
-                  />
-              ))
-            : <p>Sem viagens cadastradas</p>
-        )}
-      </div>
+  {carregando && <p>Carregando viagens...</p>}
+  {erro && <p style={{ color: 'red' }}>{erro}</p>}
+  
+  {!carregando && !erro && (
+    viagens.length > 0
+      ? viagens.map((item, index) => (
+          <CardViagem
+            key={item._id || index}
+            viagemCadastrada={item}
+            setViagem={setViagem}
+            recarregar={recarregar}
+          />
+        ))
+      : <p>Sem viagens cadastradas</p>
+  )}
+</div>
+
     </>
   )
 }

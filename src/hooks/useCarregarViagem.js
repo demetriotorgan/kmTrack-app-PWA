@@ -21,9 +21,13 @@ export const useCarregarViagem = () => {
     }
   };
 
+  const adicionarLocal = (novaViagem) => {
+  setViagens((prev) => [novaViagem, ...prev]); // <-- agora entra no topo
+};
+
   useEffect(() => {
     carregarViagens();
   }, []);
 
-  return { viagens, carregando, erro, recarregar: carregarViagens };
+  return { viagens, carregando, erro, recarregar: carregarViagens,adicionarLocal };
 };
