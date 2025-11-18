@@ -11,7 +11,7 @@ export const useCarregarViagem = () => {
     setErro(null);
 
     try {
-      const response = await api.get('/listar-viagens');
+      const response = await api.get('/listar-viagens');      
       setViagens(response.data);
     } catch (error) {
       console.error('Erro ao carregar viagens:', error);

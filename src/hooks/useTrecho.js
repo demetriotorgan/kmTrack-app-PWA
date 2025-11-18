@@ -2,7 +2,7 @@ import { useState } from 'react';
 import axios from 'axios';
 import api from '../api/api';
 
-export const useTrecho = () => {
+export const useTrecho = ({adicionarTrechoLocal}) => {
   const trechoInicial = {
     viagemId: '',
     origem: '',
@@ -79,7 +79,7 @@ export const useTrecho = () => {
         const response = await api.post('/salvar-trecho', trecho);
         console.log(response.data);       
         alert('✅ Trecho salvo com sucesso!');
-      }
+      }      
        setTrecho(trechoInicial);
        setEditando(false);
 
@@ -87,8 +87,35 @@ export const useTrecho = () => {
       if (callbackPosSalvar) callbackPosSalvar();
       
     } catch (error) {
-      console.log('Erro ao salvar novo Trecho: ', error);
-      alert('❌ Erro ao cadastrar trecho.');
+      console.log('Erro ao salvar novo Trecho: ', error);      
+    
+      const erroDeRede =
+    !navigator.onLine ||
+    error.code === "ERR_NETWORK" ||
+    !error.response; // sem resposta = API inacessível
+
+   if (erroDeRede) {
+  const trechoOffline = {
+    ...trecho,
+    _id: `offline-${Date.now()}`,
+    offline: true
+  };
+
+  if (typeof adicionarTrechoLocal === 'function') {
+    adicionarTrechoLocal(trechoOffline); // insere no lugar certo
+    console.log('Trecho offline adicionado localmente:', trechoOffline);
+  } else {
+    console.warn('adicionarTrechoLocal não é função — trecho não foi adicionado localmente.');
+  }
+
+  alert(
+    "📴 Você está offline.\n\n" +
+    "O trecho foi salvo no dispositivo e será sincronizada quando a conexão voltar."
+  );
+  setTrecho(trechoInicial);
+  return;
+}
+    alert('❌ Erro ao cadastrar trecho.');
     } finally {
       setSalvando(false);
     }

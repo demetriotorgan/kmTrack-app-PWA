@@ -8,16 +8,71 @@ import CardTrecho from './CardTrecho';
 
 
 const Trecho = () => {  
-const { trecho, salvando, handleChange, handleSubmit,iniciarEdicao, editando } = useTrecho();  
+  const [trechos, setTrechos] = useState([]);
+  const [deletando, setDeletando]=useState(false);
+
+  // substituir a versão antiga por esta:
+const adicionarTrechoLocal = (novoTrecho) => {
+  // novoTrecho deve ter: viagemId, origem, destino, distanciaPercorrida, odometro, _id, offline:true
+  setTrechos(prev => {
+    const prevArray = Array.isArray(prev) ? prev : [];
+
+    // tenta encontrar a viagem existente
+    const idx = prevArray.findIndex(v => String(v._id) === String(novoTrecho.viagemId));
+
+    if (idx !== -1) {
+      // existe a viagem: adiciona o trecho no topo do array de trechos dessa viagem
+      const viagem = prevArray[idx];
+      const viagemComTrechos = {
+        ...viagem,
+        trechos: [ novoTrecho, ...(Array.isArray(viagem.trechos) ? viagem.trechos : []) ]
+      };
+      // retornar novo array com substituição imutável
+      return [
+        ...prevArray.slice(0, idx),
+        viagemComTrechos,
+        ...prevArray.slice(idx + 1)
+      ];
+    } else {
+      // viagem não encontrada: cria um placeholder de viagem contendo esse trecho
+      const placeholder = {
+        _id: novoTrecho.viagemId || `unknown-${Date.now()}`,
+        nome: 'Viagem (offline)',
+        origem: '',
+        destino: '',
+        distanciaObjetivo: 0,
+        dataInicio: null,
+        dataFim: null,
+        status: 'planejada',
+        notasGerais: '',
+        trechos: [ novoTrecho ],
+      };
+      return [ placeholder, ...prevArray ];
+    }
+  });
+};
+
+const { trecho, salvando, handleChange, handleSubmit,iniciarEdicao, editando } = useTrecho({adicionarTrechoLocal});  
 const { viagens } = useCarregarViagem();
-const [trechos, setTrechos] = useState([]);
-const [deletando, setDeletando]=useState(false);
 
+const listarTrechos = async () => {
+  try {
+    const response = await api.get('/viagens-com-trechos');
+    const dados = response.data;
+    // console.log('Lista da API: ', dados);
 
-const listarTrechos = async()=>{
-  const listaDeTrechos = await api.get('/viagens-com-trechos');  
-  setTrechos(listaDeTrechos.data);
-}
+    if (!Array.isArray(dados)) {
+      console.error("ERRO: API NÃO RETORNOU ARRAY", dados);
+      setTrechos([]); 
+      return;
+    }
+    setTrechos(dados);
+  } catch (error) {
+    console.error("Erro ao carregar trechos:", error);    
+    setTrechos([]);
+  }
+};
+
 
 const deletarTrecho = async(id)=>{  
   const confirmar = window.confirm('Realmente deseja excluir esse trecho?');
@@ -37,7 +92,9 @@ const deletarTrecho = async(id)=>{
   }finally{
     setDeletando(false);
   }  
-}
+};
+
+
 
   useEffect(()=>{
     listarTrechos();
@@ -102,16 +159,15 @@ const deletarTrecho = async(id)=>{
           </div>
         </form>
       </div>      
-      {salvando || deletando && (
-        <ModalSalvando />
-)}
+      {(salvando || deletando) && 
+        <ModalSalvando />}
     </div>
     <div className='container'>
       <h2>Trechos Cadastrados</h2>
     </div>    
-    {trechos.map((trecho, index)=>(
+    {Array.isArray(trechos) &&  trechos.length > 0 && trechos.map((trecho, index)=>(
       <CardTrecho
-        key={index}
+        key={trecho._id}
         trecho={trecho}
         onEditarTrecho={iniciarEdicao}
         deletarTrecho={deletarTrecho}
