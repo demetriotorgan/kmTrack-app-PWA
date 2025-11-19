@@ -45,7 +45,18 @@ const useSalvarParada = (carregarViagemTrecho) => {
       alert('Parada salva com sucesso');
       carregarViagemTrecho();
     } catch (error) {
-      console.log(error);
+        console.log("Erro ao salvar parada:", error);
+
+      if (error?.offline) {
+        // ⚠ O interceptor JÁ salvou no IndexedDB aqui:
+        alert(
+          "Você está offline. A parada foi salva e será sincronizada automaticamente quando a conexão retornar."
+        );
+
+        // Nenhum reload necessário — sincronização acontece depois
+      } else {
+        alert("Não foi possível salvar a parada.");
+      }
     }finally{
       setSalvando(false);
     }

@@ -74,8 +74,13 @@ const useEditarParada = (carregarViagemTrecho) => {
       setEditando(false);
       setParadaEditando(null);
     } catch (error) {
-      console.error('❌ Erro ao salvar edição:', error);
-      alert('Erro ao salvar edição. Verifique o console.');
+       console.error("❌ Erro ao editar parada:", error);
+
+  if (error.offline) {
+    alert("📴 Você está offline. A edição será sincronizada automaticamente quando o app voltar à internet.");
+    return;
+  }
+  alert("Erro ao salvar edição. Tente novamente mais tarde.");
     } finally {
       setSalvandoEdicao(false);
     }
