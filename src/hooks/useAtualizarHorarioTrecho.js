@@ -28,7 +28,18 @@ const payload = (tipo, hora) => {
       setHora('');
       carregarViagemTrecho();
     } catch (error) {
-      console.log(error);
+       if (error?.offline) {
+        // ⚠ IMPORTANTE: O interceptor JÁ salvou no IndexedDB aqui
+        alert("Você está offline. O horário foi salvo e será sincronizado automaticamente.");
+        
+        // Comportamento normal após salvar
+        setTipo("inicio");
+        setHora("");
+
+      } else {
+        console.error("Erro ao registrar horário:", error);
+        alert("Falha ao salvar horário.");
+      }
     }finally{
       setSalvando(false);
     }
