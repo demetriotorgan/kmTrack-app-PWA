@@ -15,7 +15,7 @@ const CardInfoAbastecimento = ({viagensTrechos, carregarViagemTrecho, carregando
     const formRef = useRef(null);
        
     //hook
-const {salvando, novoAbastecimento, tipoAbastecimento, setTipoAbastecimento, handleChange, handleSalvar,setNovoAbastecimento} = useSalvarAbastecimento(carregarViagemTrecho);   
+const {salvando, novoAbastecimento, tipoAbastecimento, setTipoAbastecimento, handleChange, handleSalvar,setNovoAbastecimento} = useSalvarAbastecimento(carregarViagemTrecho,setTrechoSelecionado);   
 const { excluindo, excluirAbastecimento } = useExcluirAbastecimento(carregarViagemTrecho);
 const {editando, iniciarEdicao, salvarEdicao,editandoAwait} = useEditarAbastecimento(setNovoAbastecimento, formRef);
 
