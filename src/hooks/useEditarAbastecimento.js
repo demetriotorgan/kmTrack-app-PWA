@@ -2,7 +2,7 @@ import { useState } from "react";
 import api from "../api/api";
 import { hhmmToIso, dateToIso, isoToHHMM, isoToDateEdit } from "../util/time";
 
-export default function useEditarAbastecimento(setNovoAbastecimento, formRef) {
+export default function useEditarAbastecimento(setNovoAbastecimento, formRef,setTrechoSelecionado) {
   const [editando, setEditando] = useState(false);
   const [abastecimentoId, setAbastecimentoId] = useState("");
   const [editandoAwait, setEditandoAwait] = useState(false);
@@ -58,9 +58,10 @@ export default function useEditarAbastecimento(setNovoAbastecimento, formRef) {
     const confirmar = window.confirm("Deseja realmente alterar este abastecimento?");
     if (!confirmar) return;
 
+    const payload = criarPayload(novoAbastecimento, tipoAbastecimento);
+
     try {
-      setEditandoAwait(true);
-      const payload = criarPayload(novoAbastecimento, tipoAbastecimento);
+      setEditandoAwait(true);    
 
       const response = await api.put(
         `/editar-abastecimento/${trechoId}/${abastecimentoId}`,
@@ -68,9 +69,31 @@ export default function useEditarAbastecimento(setNovoAbastecimento, formRef) {
       );
 
       alert("Abastecimento editado com sucesso!");
-      carregarViagemTrecho();
+      carregarViagemTrecho();      
+    } catch (error) {
+       console.error("Erro ao editar abastecimento:", error);
 
-      // Finaliza edição
+      // ======================
+      //  🔥 TRATAMENTO OFFLINE
+      // ======================
+      if (error.offline) {
+        alert(
+          "Você está offline.\n\nA alteração foi salva localmente e será sincronizada quando a conexão voltar."
+        ); 
+        // 🔥 ATUALIZA IMEDIATAMENTE NA TELA (offline)
+        setTrechoSelecionado((prev) => ({
+          ...prev,
+          abastecimentos: prev.abastecimentos.map((a) =>
+            a._id === abastecimentoId ? { ...a, ...payload } : a
+          ),
+        }));    
+
+      } else {
+        alert("Erro ao editar abastecimento");
+      }
+
+    }finally{
+      setEditandoAwait(false);
       setEditando(false);
       setAbastecimentoId("");
       setNovoAbastecimento({
@@ -83,11 +106,6 @@ export default function useEditarAbastecimento(setNovoAbastecimento, formRef) {
       hora: "",
       tipo: ""
       });
-    } catch (error) {
-      console.error(error);
-      alert("Erro ao editar abastecimento");
-    }finally{
-      setEditandoAwait(false);
     }
   };
 
