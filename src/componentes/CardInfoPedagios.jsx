@@ -19,7 +19,7 @@ const CardInfoPedagios = ({viagensTrechos, carregando, carregarViagemTrecho}) =>
     const formRef = useRef(null);
 
 
-const { salvarPedagio, salvando } = useSalvarPedagio(setNovoPedagio,carregarViagemTrecho);   
+const { salvarPedagio, salvando } = useSalvarPedagio(setNovoPedagio,carregarViagemTrecho,setTrechoSelecionado);   
 const { excluirPedagio, excluindo } = useExcluirPedagio(carregarViagemTrecho);
 const { handleEditar, editarPedagio, editando, salvandoEdicao} = useEditarPedagio({carregarViagemTrecho, novoPedagio, setNovoPedagio});
 
