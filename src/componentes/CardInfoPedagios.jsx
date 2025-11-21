@@ -21,7 +21,7 @@ const CardInfoPedagios = ({viagensTrechos, carregando, carregarViagemTrecho}) =>
 
 const { salvarPedagio, salvando } = useSalvarPedagio(setNovoPedagio,carregarViagemTrecho,setTrechoSelecionado);   
 const { excluirPedagio, excluindo } = useExcluirPedagio({carregarViagemTrecho,setTrechoSelecionado});
-const { handleEditar, editarPedagio, editando, salvandoEdicao} = useEditarPedagio({carregarViagemTrecho, novoPedagio, setNovoPedagio});
+const { handleEditar, editarPedagio, editando, salvandoEdicao} = useEditarPedagio({carregarViagemTrecho, novoPedagio, setNovoPedagio,setTrechoSelecionado});
 
 const handleChange = (e)=>{
         const {name, value} = e.target;
