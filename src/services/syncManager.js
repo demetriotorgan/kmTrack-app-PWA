@@ -31,14 +31,22 @@ export async function sincronizarPendentes() {
         await removerItem("pendentes", item.uuid);
 
       } catch (error) {
-        if (error.response?.status === 409) {
-          console.warn("⚠ Registro já existe no servidor. Removendo pendência...");
+         if (error.response?.status === 404) {
+          console.warn("⚠ Registro não existe mais no servidor. Limpando pendência:", item.url);
           await removerItem("pendentes", item.uuid);
-        } else {
-          console.error("❌ Falha ao sincronizar:", error);
-          // Mantém pendência para tentar depois
           continue;
         }
+
+        // Conflito → registro já existia no servidor → limpar pendência
+        if (error.response?.status === 409) {
+          console.warn("⚠ Conflito 409. Removendo pendência...");
+          await removerItem("pendentes", item.uuid);
+          continue;
+        }
+
+        // Qualquer outro erro mantém pendente
+        console.error("❌ Falha ao sincronizar:", error);
+        continue;
       }
     }
   } finally {

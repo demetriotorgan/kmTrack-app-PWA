@@ -10,7 +10,7 @@ import useEditarPedagio from '../hooks/useEditarPedagio';
 
 const CardInfoPedagios = ({viagensTrechos, carregando, carregarViagemTrecho}) => {
     const [viagemSelecionada,setViagemSelecionada] = useState('');
-    const[trechoSelecionado, setTrechoSelecionado] = useState('');
+    const[trechoSelecionado, setTrechoSelecionado] = useState(null);
     const [novoPedagio, setNovoPedagio] = useState({
         valor: "",
         local: "",
@@ -20,7 +20,7 @@ const CardInfoPedagios = ({viagensTrechos, carregando, carregarViagemTrecho}) =>
 
 
 const { salvarPedagio, salvando } = useSalvarPedagio(setNovoPedagio,carregarViagemTrecho,setTrechoSelecionado);   
-const { excluirPedagio, excluindo } = useExcluirPedagio(carregarViagemTrecho);
+const { excluirPedagio, excluindo } = useExcluirPedagio({carregarViagemTrecho,setTrechoSelecionado});
 const { handleEditar, editarPedagio, editando, salvandoEdicao} = useEditarPedagio({carregarViagemTrecho, novoPedagio, setNovoPedagio});
 
 const handleChange = (e)=>{
